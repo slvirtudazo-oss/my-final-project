@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Virtual Pag-IBIG</title>
+<style>
+  
+  :root {
+    --header-bg:        #d9d9d9; 
+    --hero-overlay-bg:  #d6d6d6; 
+    --nav-btn-navy:     #0e386f; 
+    --card-btn-blue:    #376db2; 
+    --card-row-bg:      #c8c8c8; 
+    --footer-bg:        #104282; 
+    --footer-link:      #ffff00; 
+    --footer-text:      #ffffff; 
+    --chat-bubble-bg:   #f9dc1c; 
+    --chat-header-bg:   #cfe6fb; 
+    --text-dark:        #1c1c1c;
+    --white:            #ffffff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, Helvetica, sans-serif; color: var(--text-dark); }
+
+  
+  .site-header {
+    background: var(--header-bg);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 40px;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: bold; }
+  .logo .virtual { color: #29215a; }
+  .logo .pagibig { color: #1657a6; }
+  .logo .version { font-size: 11px; color: #777; align-self: flex-start; }
+
+  .main-nav { display: flex; align-items: center; gap: 28px; flex-wrap: nowrap; }
+  .main-nav a {
+    text-decoration: none;
+    color: #333;
+    font-size: 15px;
+    position: relative;
+    padding-bottom: 4px;
+    transition: color .2s ease;
+  }
+  .main-nav a::after {
+    content: '';
+    position: absolute;
+    left: 0; bottom: 0;
+    width: 0%;
+    height: 2px;
+    background: var(--nav-btn-navy);
+    transition: width .25s ease;
+  }
+  .main-nav a:hover { color: var(--nav-btn-navy); }
+  .main-nav a:hover::after { width: 100%; }
+  .btn-login-nav {
+    background: var(--nav-btn-navy);
+    color: var(--white);
+    padding: 12px 28px;
+    border: none;
+    border-radius: 4px;
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    transition: background .2s ease, transform .15s ease;
+  }
+  .btn-login-nav:hover {
+    background: #164a8e;
+    transform: translateY(-1px);
+  }
+
+  
+  .hero {
+    position: relative;
+    background: var(--hero-overlay-bg);
+    display: grid;
+    grid-template-columns: 0.9fr 1.3fr;
+    min-height: 620px;
+  }
+  .hero-tagline {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 30px 20px 10px;
+    color: #1657a6;
+    font-size: 22px;
+  }
+  .hero-tagline b { color: #0e386f; }
+
+  .service-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 0 30px 0 40px;
+  }
+
+ 
+  .service-item {
+    background: var(--card-row-bg);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 24px;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 6px;
+    color: var(--text-dark);
+    text-decoration: none;
+    transition: background .2s ease, color .2s ease, transform .15s ease, box-shadow .2s ease;
+  }
+  .service-item:hover {
+    background: var(--card-btn-blue);
+    color: var(--white);
+    transform: translateX(4px);
+    box-shadow: 0 4px 14px rgba(55,109,178,.35);
+  }
+  .service-item.active {
+    background: var(--card-btn-blue);
+    color: var(--white);
+    box-shadow: 0 4px 14px rgba(55,109,178,.45);
+  }
+  .service-item .icon {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    border-radius: 8px;
+    background: transparent;
+    transition: background .2s ease;
+    flex-shrink: 0;
+  }
+  .service-item:hover .icon,
+  .service-item.active .icon {
+    background: rgba(0,0,0,.25);
+  }
+
+  .service-actions {
+    display: flex;
+    gap: 14px;
+    margin-top: 10px;
+  }
+  .btn {
+    padding: 16px 30px; border: none; border-radius: 4px; font-size: 15px; cursor: pointer;
+    transition: filter .2s ease, transform .15s ease;
+    text-decoration: none; display: inline-block; text-align: center;
+  }
+  .btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  .btn-outline { background: var(--card-row-bg); color: var(--text-dark); }
+  .btn-primary { background: var(--card-btn-blue); color: var(--white); }
+
+  .hero-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    min-height: 250px;
+    display: block;
+  }
+
+  
+  .chat-trigger {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    z-index: 900;
+  }
+  .chat-tooltip {
+    background: var(--chat-bubble-bg);
+    padding: 10px 16px;
+    border-radius: 16px;
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(8px);
+    transition: opacity .2s ease, transform .2s ease, visibility .2s ease;
+    white-space: nowrap;
+  }
+  .chat-trigger:hover .chat-tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+  }
+  .chat-avatar-btn {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: var(--nav-btn-navy);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 4px 14px rgba(0,0,0,.3);
+    transition: transform .2s ease;
+  }
+  .chat-trigger:hover .chat-avatar-btn {
+    transform: scale(1.08);
+  }
+
+  .chat-panel {
+    position: fixed;
+    right: 24px;
+    bottom: 96px;
+    width: 340px;
+    max-height: 560px;
+    background: var(--white);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 34px rgba(0,0,0,.35);
+    display: none;
+    flex-direction: column;
+    z-index: 950;
+  }
+  .chat-panel.open { display: flex; }
+  .chat-panel.minimized .chat-body,
+  .chat-panel.minimized .chat-footer-note { display: none; }
+
+  .chat-header {
+    background: var(--chat-header-bg);
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .chat-header-left { display: flex; align-items: center; gap: 12px; }
+  .chat-header-logo { font-weight: bold; color: #1a2c6b; font-size: 14px; line-height: 1.2; }
+  .chat-header-logo .heart { color: #d93b5c; }
+  .chat-avatar-circle {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--white);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .chat-header-actions { display: flex; gap: 6px; }
+  .chat-header-actions button {
+    width: 26px; height: 26px;
+    border: none; border-radius: 4px;
+    background: rgba(255,255,255,.6);
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .chat-header-actions button:hover { background: var(--white); }
+
+  .chat-body { padding: 18px; overflow-y: auto; }
+  .chat-field { margin-bottom: 16px; }
+  .chat-field label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; }
+  .chat-field select {
+    width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;
+    font-size: 14px; color: #555; background: var(--white);
+  }
+  .chat-submit-row { display: flex; justify-content: flex-end; margin-bottom: 18px; }
+  .chat-submit {
+    background: var(--chat-header-bg);
+    border: none; padding: 10px 26px; border-radius: 6px;
+    font-size: 14px; cursor: pointer; transition: background .2s ease;
+  }
+  .chat-submit:hover { background: #b9d9f5; }
+  .chat-footer-note { font-size: 12.5px; color: #333; padding: 0 18px 18px; line-height: 1.5; }
+
+
+  .site-footer {
+    background: var(--footer-bg);
+    color: var(--footer-text);
+    padding: 50px 40px 40px;
+  }
+
+  .footer-browse { margin-bottom: 40px; }
+  .footer-browse h3 {
+    font-size: 16px;
+    letter-spacing: .5px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,.4);
+    margin-bottom: 20px;
+  }
+  .footer-categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .footer-cat-btn {
+    background: #f9dc1c;
+    border: 1px solid rgba(255,255,255,.4);
+    color: var(--text-dark);
+    padding: 10px 20px;
+    border-radius: 22px;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background .2s ease, transform .15s ease;
+  }
+  .footer-cat-btn:hover {
+    background: #ffe45c;
+    transform: translateY(-2px);
+  }
+
+  .footer-bottom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    padding-top: 30px;
+    border-top: 1px solid rgba(255,255,255,.2);
+  }
+  .footer-col h3 {
+    font-size: 16px;
+    letter-spacing: .5px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,.4);
+    margin-bottom: 16px;
+  }
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .footer-col a {
+    color: var(--footer-link);
+    text-decoration: underline;
+    font-size: 14px;
+    transition: color .2s ease;
+  }
+  .footer-col a:hover { color: #fff5a0; }
+  .contact-info p, .contact-info a { color: var(--white); font-size: 15px; transition: opacity .2s ease; }
+  .contact-info a:hover { opacity: .75; }
+  .contact-info .row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .social-icons { display: flex; gap: 10px; margin-top: 10px; }
+  .social-icons span {
+    width: 30px; height: 30px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--white); color: var(--footer-bg); font-size: 13px;
+  }
+
+  .footer-disclaimer {
+    margin-top: 30px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255,255,255,.2);
+    text-align: center;
+    font-size: 13px;
+    font-style: italic;
+    color: rgba(255,255,255,.75);
+  }
+
+
+  .footer-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.6);
+    display: none;
+    z-index: 1000;
+  }
+  .footer-modal-backdrop.open { display: block; }
+
+  .footer-modal {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--white);
+    color: var(--text-dark);
+    width: 90%;
+    max-width: 420px;
+    max-height: 70vh;
+    overflow-y: auto;
+    border-radius: 10px;
+    padding: 26px;
+    display: none;
+    z-index: 1001;
+    box-shadow: 0 14px 40px rgba(0,0,0,.4);
+  }
+  .footer-modal.open { display: block; }
+  .footer-modal-close {
+    position: absolute;
+    top: 14px; right: 16px;
+    border: none;
+    background: transparent;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    color: #555;
+  }
+  .footer-modal h4 {
+    color: var(--nav-btn-navy);
+    margin-bottom: 16px;
+    padding-right: 20px;
+    font-size: 18px;
+  }
+  .footer-modal ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .footer-modal a {
+    color: #1657a6; text-decoration: underline; font-size: 15px;
+    transition: color .2s ease;
+  }
+  .footer-modal a:hover { color: #0e386f; }
+
+
+  @media (max-width: 992px) {
+    .hero { grid-template-columns: 1fr; }
+    .hero-photo { min-height: 320px; order: 2; }
+    .service-menu { padding: 0 40px; order: 1; }
+    .footer-bottom-grid { grid-template-columns: 1fr; }
+  }
+
+
+  @media (max-width: 600px) {
+    .site-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 20px;
+    }
+    .main-nav { width: 100%; gap: 16px; flex-wrap: wrap; }
+    .hero-tagline { font-size: 16px; padding: 20px 16px 8px; }
+    .service-menu { padding: 0 16px; gap: 10px; }
+    .service-item { padding: 16px 18px; font-size: 15px; }
+    .service-actions { flex-direction: column; }
+    .hero-photo { min-height: 250px; }
+
+    .site-footer { padding: 40px 20px 30px; }
+    .footer-categories { gap: 8px; }
+    .footer-cat-btn { padding: 8px 14px; font-size: 13px; }
+
+    .chat-panel {
+      width: 90vw;
+      right: 5vw;
+      left: 5vw;
+      bottom: 84px;
+      max-height: 75vh;
+    }
+    .chat-trigger { right: 16px; bottom: 16px; }
+    .chat-tooltip { display: none; } 
+    .footer-modal { width: 92%; padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+
+  <header class="site-header">
+    <div class="logo">
+<img src="logo.jpg" alt="Pag-IBIG Logo" style="height: 32px;">      <span class="virtual">VIRTUAL</span>
+      <span class="pagibig">Pag-IBIG</span>
+      <span class="version">v2.1.0</span>
+    </div>
+    <nav class="main-nav">
+      <a href="https://www.pagibigfund.gov.ph" target="_blank" rel="noopener">Pag-IBIG Fund Website</a>
+      <a href="#faqs">FAQs</a>
+      <a href="#contact-us">Contact Us</a>
+      <a href="#login" class="btn-login-nav">Log In</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <p class="hero-tagline">
+      Enjoy Pag-IBIG Fund services anytime, anywhere with the <b>Virtual Pag-IBIG!</b><br>
+      It's easy, it's convenient. It's your Lingkod Pag-IBIG 24/7.
+    </p>
+
+    <div class="service-menu" id="serviceMenu">
+      <a href="#be-a-member" class="service-item"><span class="icon">🪪</span> Be a Member</a>
+      <a href="#pay-online" class="service-item"><span class="icon">💳</span> Pay Online</a>
+      <a href="#manage-loans" class="service-item"><span class="icon">📄</span> Apply for and Manage Loans</a>
+      <a href="#view-records" class="service-item"><span class="icon">📁</span> View Records</a>
+      <a href="#claim-savings" class="service-item"><span class="icon">💰</span> Claim Pag-IBIG Savings</a>
+      <div class="service-actions">
+        <a href="#create-account" class="btn btn-outline">Create Account</a>
+        <a href="#login" class="btn btn-primary">Log In</a>
+      </div>
+    </div>
+
+    <img src="pagibig.jpg" alt="Pag-IBIG member" class="hero-photo">
+
+  </section>
+
+
+  <div class="chat-trigger" id="chatTrigger">
+    <div class="chat-tooltip">Hi, click here to chat with us!</div>
+    <div class="chat-avatar-btn">💬</div>
+  </div>
+
+  <div class="chat-panel" id="chatPanel">
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <div class="chat-avatar-circle">🧑‍💼</div>
+        <div class="chat-header-logo">LINGKOD <span class="heart">❤</span>D<br>Pag-IBIG</div>
+      </div>
+      <div class="chat-header-actions">
+        <button id="chatMinimizeBtn" title="Minimize">−</button>
+        <button id="chatCloseBtn" title="Close">×</button>
+      </div>
+    </div>
+
+    <div class="chat-body">
+      <div class="chat-field">
+        <label>Gender</label>
+        <select>
+          <option>-- Choose from the list --</option>
+          <option>Male</option>
+          <option>Female</option>
+          <option>Prefer not to say</option>
+        </select>
+      </div>
+      <div class="chat-field">
+        <label>Where is your Location?</label>
+        <select>
+          <option>-- Choose from the list --</option>
+          <option>Metro Manila</option>
+          <option>Luzon</option>
+          <option>Visayas</option>
+          <option>Mindanao</option>
+          <option>Overseas</option>
+        </select>
+      </div>
+      <div class="chat-field">
+        <label>How did you find our Chat service?</label>
+        <select>
+          <option>-- Choose from the list --</option>
+          <option>Website</option>
+          <option>Social Media</option>
+          <option>Friend/Family</option>
+          <option>Branch Visit</option>
+        </select>
+      </div>
+      <div class="chat-field">
+        <label>What is your concern?</label>
+        <select>
+          <option>-- Choose from the list --</option>
+          <option>Membership</option>
+          <option>Loans</option>
+          <option>Savings</option>
+          <option>Claims</option>
+          <option>Others</option>
+        </select>
+      </div>
+
+      <div class="chat-submit-row">
+        <button class="chat-submit">Submit</button>
+      </div>
+    </div>
+
+    <p class="chat-footer-note">
+      You may also reach us at (02) 8-724-4244 (8-PAG-IBIG). Regular rates apply.
+    </p>
+  </div>
+
+  
+  <footer class="site-footer">
+
+    <div class="footer-browse">
+      <h3>BROWSE OUR WEBSITE</h3>
+      <div class="footer-categories" id="footerCategories"></div>
+    </div>
+
+    <div class="footer-bottom-grid">
+      <div class="footer-col contact-info">
+        <h3>CONTACT INFORMATION</h3>
+        <div class="row">📞 <span>8 Pag-IBIG 724-4244</span></div>
+        <div class="row">✉️ <a href="mailto:contactus@pagibigfund.gov.ph">contactus@pagibigfund.gov.ph</a></div>
+        <div class="row">📍 <a href="#">Branch Locator</a></div>
+        <div class="social-icons">
+          <span>f</span><span>𝕏</span><span>▶</span>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h3>QUICK LINKS</h3>
+        <ul>
+          <li><a href="#">Housing Loan Calculator</a></li>
+          <li><a href="#">Downloadable Forms</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="footer-disclaimer">For Educational Purposes Only!</p>
+  </footer>
+
+  
+  <div class="footer-modal-backdrop" id="footerBackdrop"></div>
+  <div class="footer-modal" id="footerModal">
+    <button class="footer-modal-close" id="footerModalClose">×</button>
+    <h4 id="footerModalTitle"></h4>
+    <ul id="footerModalList"></ul>
+  </div>
+
+<script>
+
+  document.querySelectorAll('#serviceMenu .service-item').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('#serviceMenu .service-item').forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+    });
+  });
+
+  const chatTrigger = document.getElementById('chatTrigger');
+  const chatPanel    = document.getElementById('chatPanel');
+  const chatCloseBtn = document.getElementById('chatCloseBtn');
+  const chatMinBtn   = document.getElementById('chatMinimizeBtn');
+
+  chatTrigger.addEventListener('click', () => {
+    chatPanel.classList.toggle('open');
+    chatPanel.classList.remove('minimized');
+  });
+  chatCloseBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    chatPanel.classList.remove('open');
+    chatPanel.classList.remove('minimized');
+  });
+  chatMinBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    chatPanel.classList.toggle('minimized');
+  });
+
+  function slugify(text) {
+    return '#' + text.toLowerCase()
+      .replace(/[^\w\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-');
+  }
+
+  const footerData = {
+    "Membership": ["Membership"],
+    "Savings": ["Regular Savings", "MP2 Savings"],
+    "Home Loans": [
+      "Regular Housing", "4.5% Promo Housing Loan", "Affordable Housing Loan",
+      "Acquired Assets SUPER SALE", "Home Saver Programs", "Expanded 4PH Programs",
+      "Home Improvement Loan", "Title Release"
+    ],
+    "Cash Loans": ["Multi-Purpose Loan", "Calamity Loan", "Home Equity Appreciation Loan", "Loyalty Card Plus"],
+    "Claims": ["Regular Saving", "MP2 Savings", "Housing Loan Insurance", "Title Release"],
+    "Payment & Access": ["Payment Channels", "Virtual Pag-IBIG"],
+    "People Behind": ["Board Of Trustees", "Pag-IBIG Fund Chairperson", "CEO's Corner", "Officials", "Organizational Chart"],
+    "News & Reports": ["News", "Annual Reports", "Citizen's Charter", "Circulars"],
+    "Governance": [
+      "Corporate Governance", "Transparency", "Governance Scorecard", "At A Glance",
+      "Whistleblowing", "Employee Welfare", "Corporate Social Responsibility CSR",
+      "Gender and Development", "Awards"
+    ],
+    "Opportunities": ["Procurement Bidding", "Careers"]
+  };
+
+  const categoriesWrap = document.getElementById('footerCategories');
+  const footerBackdrop = document.getElementById('footerBackdrop');
+  const footerModal    = document.getElementById('footerModal');
+  const footerModalTitle = document.getElementById('footerModalTitle');
+  const footerModalList  = document.getElementById('footerModalList');
+  const footerModalClose = document.getElementById('footerModalClose');
+
+  Object.keys(footerData).forEach(category => {
+    const btn = document.createElement('a');
+    btn.className = 'footer-cat-btn';
+    btn.href = slugify(category);
+    btn.textContent = category;
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      openFooterModal(category);
+    });
+    categoriesWrap.appendChild(btn);
+  });
+
+  function openFooterModal(category) {
+    footerModalTitle.textContent = category;
+    footerModalList.innerHTML = '';
+    footerData[category].forEach(link => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = slugify(link);
+      a.textContent = link;
+      li.appendChild(a);
+      footerModalList.appendChild(li);
+    });
+    footerBackdrop.classList.add('open');
+    footerModal.classList.add('open');
+  }
+  function closeFooterModal() {
+    footerBackdrop.classList.remove('open');
+    footerModal.classList.remove('open');
+  }
+  footerBackdrop.addEventListener('click', closeFooterModal);
+  footerModalClose.addEventListener('click', closeFooterModal);
+</script>
+
+</body>
+</html>
