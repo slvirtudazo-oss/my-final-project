@@ -22,8 +22,15 @@
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: Arial, Helvetica, sans-serif; color: var(--text-dark); }
-
+  body { font-family: Arial, Helvetica, sans-serif; color: var(--text-dark); scroll-behavior: smooth; }
+<nav>
+    <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="contact.html">Contact Us</a></li>
+    </ul>
+</nav>
   
   .site-header {
     background: var(--header-bg);
@@ -31,11 +38,16 @@
     align-items: center;
     justify-content: space-between;
     padding: 14px 40px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   }
-  .logo { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: bold; }
-  .logo .virtual { color: #29215a; }
+  .logo { display: flex; align-items: center; gap: 8px; font-size: 22px; font-weight: bold; }
+  .logo img { height: 32px; display: block; }
+  .logo .virtual { color: #29215a; margin-left: 4px; }
   .logo .pagibig { color: #1657a6; }
-  .logo .version { font-size: 11px; color: #777; align-self: flex-start; }
+  .logo .version { font-size: 11px; color: #777; align-self: flex-start; margin-top: -2px; }
 
   .main-nav { display: flex; align-items: center; gap: 28px; flex-wrap: nowrap; }
   .main-nav a {
@@ -57,9 +69,10 @@
   }
   .main-nav a:hover { color: var(--nav-btn-navy); }
   .main-nav a:hover::after { width: 100%; }
+  
   .btn-login-nav {
     background: var(--nav-btn-navy);
-    color: var(--white);
+    color: var(--white) !important;
     padding: 12px 28px;
     border: none;
     border-radius: 4px;
@@ -73,6 +86,7 @@
     align-self: center;
     transition: background .2s ease, transform .15s ease;
   }
+  .btn-login-nav::after { display: none !important; }
   .btn-login-nav:hover {
     background: #164a8e;
     transform: translateY(-1px);
@@ -102,7 +116,6 @@
     padding: 0 30px 0 40px;
   }
 
- 
   .service-item {
     background: var(--card-row-bg);
     display: flex;
@@ -447,14 +460,16 @@
 
   <header class="site-header">
     <div class="logo">
-<img src="logo.jpg" alt="Pag-IBIG Logo" style="height: 32px;">      <span class="virtual">VIRTUAL</span>
+      <img src="logo.jpg" alt="Pag-IBIG Logo">
+      <span class="virtual">VIRTUAL</span>
       <span class="pagibig">Pag-IBIG</span>
       <span class="version">v2.1.0</span>
     </div>
     <nav class="main-nav">
       <a href="https://www.pagibigfund.gov.ph" target="_blank" rel="noopener">Pag-IBIG Fund Website</a>
-      <a href="#faqs">FAQs</a>
-      <a href="#contact-us">Contact Us</a>
+      <a href="#serviceMenu">Services</a>
+      <a href="#about-us">About Us</a>
+      <a href="#contact-us">Contact</a>
       <a href="#login" class="btn-login-nav">Log In</a>
     </nav>
   </header>
@@ -552,7 +567,7 @@
     </p>
   </div>
 
-  
+
   <footer class="site-footer">
 
     <div class="footer-browse">
@@ -561,7 +576,7 @@
     </div>
 
     <div class="footer-bottom-grid">
-      <div class="footer-col contact-info">
+      <div class="footer-col contact-info" id="contact-us">
         <h3>CONTACT INFORMATION</h3>
         <div class="row">📞 <span>8 Pag-IBIG 724-4244</span></div>
         <div class="row">✉️ <a href="mailto:contactus@pagibigfund.gov.ph">contactus@pagibigfund.gov.ph</a></div>
@@ -583,7 +598,7 @@
     <p class="footer-disclaimer">For Educational Purposes Only!</p>
   </footer>
 
-  
+
   <div class="footer-modal-backdrop" id="footerBackdrop"></div>
   <div class="footer-modal" id="footerModal">
     <button class="footer-modal-close" id="footerModalClose">×</button>
